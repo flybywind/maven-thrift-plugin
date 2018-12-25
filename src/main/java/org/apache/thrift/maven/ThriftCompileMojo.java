@@ -1,15 +1,15 @@
 package org.apache.thrift.maven;
 
 import com.google.common.collect.ImmutableList;
-
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 
 import java.io.File;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.Set;
 
 /**
  * This mojo executes the {@code thrift} compiler for generating java sources
@@ -23,7 +23,10 @@ import java.util.List;
  * @requiresDependencyResolution compile
  */
 
-@Mojo(name = "compile-thrift")
+@Mojo(name = "compile-thrift",
+        defaultPhase = LifecyclePhase.GENERATE_SOURCES,
+         = ResolutionScope.COMPILE_PLUS_RUNTIME,
+        requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public final class ThriftCompileMojo extends AbstractThriftMojo {
 
   /**
@@ -45,12 +48,13 @@ public final class ThriftCompileMojo extends AbstractThriftMojo {
   private File outputDirectory;
 
     @Override
-  protected Collection<Artifact> getDependencyArtifacts() {
-    // TODO(gak): maven-project needs generics
-    @SuppressWarnings("unchecked")
-    Collection<Artifact> compileArtifacts = project.getArtifacts();
-    return compileArtifacts;
-  }
+    protected Collection<Artifact> getDependencyArtifacts() {
+      // TODO(gak): maven-project needs generics
+      @SuppressWarnings("unchecked")
+      Set<Artifact> allArtifacts = project.getArtifacts();
+      return allArtifacts;
+    }
+
 
   @Override
   protected File getOutputDirectory() {

@@ -9,6 +9,7 @@ import static com.google.common.collect.Sets.newHashSet;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 
+import org.apache.maven.plugin.logging.Log;
 import org.codehaus.plexus.util.cli.CommandLineException;
 import org.codehaus.plexus.util.cli.CommandLineUtils;
 import org.codehaus.plexus.util.cli.Commandline;
@@ -39,6 +40,7 @@ final class Thrift {
     private final File javaOutputDirectory;
     private final CommandLineUtils.StringStreamConsumer output;
     private final CommandLineUtils.StringStreamConsumer error;
+    private final Log logger;
 
     /**
      * Constructs a new instance. This should only be used by the {@link Builder}.
@@ -51,7 +53,7 @@ final class Thrift {
      *                            will be generated.
      */
     private Thrift(String executable, String generator, ImmutableSet<File> thriftPath,
-                   ImmutableSet<File> thriftFiles, File javaOutputDirectory) {
+                   ImmutableSet<File> thriftFiles, File javaOutputDirectory, Log log) {
         this.executable = checkNotNull(executable, "executable");
         this.generator = checkNotNull(generator, "generator");
         this.thriftPathElements = checkNotNull(thriftPath, "thriftPath");
@@ -59,6 +61,7 @@ final class Thrift {
         this.javaOutputDirectory = checkNotNull(javaOutputDirectory, "javaOutputDirectory");
         this.error = new CommandLineUtils.StringStreamConsumer();
         this.output = new CommandLineUtils.StringStreamConsumer();
+        this.logger = log;
     }
 
     /**
@@ -74,6 +77,7 @@ final class Thrift {
             Commandline cl = new Commandline();
             cl.setExecutable(executable);
             cl.addArguments(buildThriftCommand(thriftFile).toArray(new String[]{}));
+            logInfo("thrift compile command: " + cl.toString());
             final int result = CommandLineUtils.executeCommandLine(cl, null, output, error);
 
             if (result != 0) {
@@ -87,6 +91,16 @@ final class Thrift {
         return 0;
     }
 
+    void logInfo(String message) {
+        if (this.logger != null) {
+            this.logger.info(message);
+        }
+    }
+    void logDebug(String message) {
+        if (this.logger != null) {
+            this.logger.debug(message);
+        }
+    }
     /**
      * Creates the command line arguments.
      * <p/>
@@ -156,7 +170,7 @@ final class Thrift {
         private Set<File> thriftPathElements;
         private Set<File> thriftFiles;
         private String generator;
-
+        private Log logger;
         /**
          * Constructs a new builder. The two parameters are present as they are
          * required for all {@link Thrift} instances.
@@ -174,6 +188,7 @@ final class Thrift {
             checkArgument(javaOutputDirectory.isDirectory());
             this.thriftFiles = newHashSet();
             this.thriftPathElements = newHashSet();
+            this.logger = null;
         }
 
         /**
@@ -262,6 +277,11 @@ final class Thrift {
             return this;
         }
 
+        public Builder setLogger(Log l) {
+            checkNotNull(l);
+            this.logger = l;
+            return this;
+        }
         /**
          * @return A configured {@link Thrift} instance.
          * @throws IllegalStateException If no thrift files have been added.
@@ -269,7 +289,7 @@ final class Thrift {
         public Thrift build() {
             checkState(!thriftFiles.isEmpty());
             return new Thrift(executable, generator, ImmutableSet.copyOf(thriftPathElements),
-                ImmutableSet.copyOf(thriftFiles), javaOutputDirectory);
+                ImmutableSet.copyOf(thriftFiles), javaOutputDirectory, logger);
         }
     }
 }

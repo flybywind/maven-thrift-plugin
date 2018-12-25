@@ -56,7 +56,7 @@ abstract class AbstractThriftMojo extends AbstractMojo {
 
     private static final Joiner joiner = Joiner.on(", ");
 
-    private static final Pattern pattern = Pattern.compile("^#include\\s+\"([\\w+]\\.thrift)\"");
+    private static final Pattern pattern = Pattern.compile("^include\\s+\\\"(\\w+\\.thrift)\\\"");
     /**
      * The current Maven project.
      *
@@ -153,6 +153,7 @@ abstract class AbstractThriftMojo extends AbstractMojo {
         checkParameters();
         final File thriftSourceRoot = getThriftSourceRoot();
         if (thriftSourceRoot.exists()) {
+            getLog().debug("thrift source root: " + thriftSourceRoot.getPath());
             try {
                 ImmutableSet<File> thriftFiles = findThriftFilesInDirectory(thriftSourceRoot);
                 if (thriftFiles.isEmpty()) {
@@ -169,8 +170,9 @@ abstract class AbstractThriftMojo extends AbstractMojo {
                                 String line = reader.readLine();
                                 if (line == null) break;
                                 if (StringUtils.isNotBlank(line)) {
+                                    getLog().debug("thrift source: >> " + line);
                                     Matcher m = pattern.matcher(line);
-                                    if (m.matches()) {
+                                    if (m.find()) {
                                         String includeFile = m.group(1);
                                         if (StringUtils.isNotBlank(includeFile)) {
                                             thriftInclude.add(includeFile);
@@ -198,6 +200,7 @@ abstract class AbstractThriftMojo extends AbstractMojo {
                             .addThriftPathElements(derivedThriftPathElements)
                             .addThriftPathElements(asList(additionalThriftPathElements))
                             .addThriftFiles(thriftFiles)
+                            .setLogger(getLog())
                             .build();
                     final int exitStatus = thrift.compile();
                     if (exitStatus != 0) {
@@ -253,6 +256,7 @@ abstract class AbstractThriftMojo extends AbstractMojo {
         Set<File> dependencyArtifactFiles = newHashSet();
         for (Artifact artifact : getDependencyArtifacts()) {
             dependencyArtifactFiles.add(artifact.getFile());
+            getLog().debug("thrift plugin: parse dependence: " + artifact);
         }
         return ImmutableSet.copyOf(dependencyArtifactFiles);
     }
@@ -269,6 +273,7 @@ abstract class AbstractThriftMojo extends AbstractMojo {
         }
         Set<File> thriftDirectories = newHashSet();
         for (File classpathElementFile : classpathElementFiles) {
+            getLog().debug("thrift-plugin: process " + classpathElementFile.getPath());
             // for some reason under IAM, we receive poms as dependent files
             // I am excluding .xml rather than including .jar as there may be other extensions in use (sar, har, zip)
             if (classpathElementFile.isFile() && classpathElementFile.canRead() &&
@@ -379,5 +384,15 @@ abstract class AbstractThriftMojo extends AbstractMojo {
             hexString.append(HEX_CHARS[(b & 0xF0) >> 4]).append(HEX_CHARS[b & 0x0F]);
         }
         return hexString.toString();
+    }
+
+    public static void main(String ... args) {
+        Pattern pattern = Pattern.compile("^include\\s+\\\"(\\w+\\.thrift)\\\"");
+        String line = "include \"miliao_shared.thrift\" abc";
+        System.out.println(line);
+        Matcher m = pattern.matcher(line);
+        System.out.println(m.find());
+        System.out.println(m.groupCount());
+        System.out.println(m.group(1));
     }
 }

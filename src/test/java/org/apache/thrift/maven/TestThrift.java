@@ -24,7 +24,7 @@ public class TestThrift {
     public void setup() throws Exception {
         final File tmpDir = new File(System.getProperty("java.io.tmpdir"));
         testRootDir = new File(tmpDir, "thrift-test");
-
+        System.out.println("test root dir:" + testRootDir.getPath());
         if (testRootDir.exists()) {
             FileUtils.cleanDirectory(testRootDir);
         } else {

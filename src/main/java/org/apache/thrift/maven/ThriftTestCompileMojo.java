@@ -3,6 +3,8 @@ package org.apache.thrift.maven;
 import com.google.common.collect.ImmutableList;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.List;
  * @goal testCompile
  * @requiresDependencyResolution test
  */
+@Mojo(name = "test-thrift-compile")
 public final class ThriftTestCompileMojo extends AbstractThriftMojo {
 
   /**
@@ -21,6 +24,7 @@ public final class ThriftTestCompileMojo extends AbstractThriftMojo {
    * @parameter default-value="${basedir}/src/test/thrift"
    * @required
    */
+  @Parameter(defaultValue = "${basedir}/src/test/thrift")
   private File thriftTestSourceRoot;
 
   /**
@@ -29,6 +33,7 @@ public final class ThriftTestCompileMojo extends AbstractThriftMojo {
    * @parameter default-value="${project.build.directory}/generated-test-sources/thrift"
    * @required
    */
+  @Parameter(defaultValue = "${project.build.directory}/generated-test-sources/thrift")
   private File outputDirectory;
 
     @Override

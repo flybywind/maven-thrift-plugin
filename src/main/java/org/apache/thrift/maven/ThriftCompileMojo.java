@@ -3,6 +3,8 @@ package org.apache.thrift.maven;
 import com.google.common.collect.ImmutableList;
 
 import org.apache.maven.artifact.Artifact;
+import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 import java.util.List;
@@ -19,6 +21,7 @@ import java.util.List;
  * @requiresDependencyResolution compile
  */
 
+@Mojo(name = "compile-thrift")
 public final class ThriftCompileMojo extends AbstractThriftMojo {
 
   /**
@@ -27,6 +30,7 @@ public final class ThriftCompileMojo extends AbstractThriftMojo {
    * @parameter default-value="${basedir}/src/main/thrift"
    * @required
    */
+   @Parameter(defaultValue="${basedir}/src/main/thrift")
   private File thriftSourceRoot;
 
   /**
@@ -35,6 +39,7 @@ public final class ThriftCompileMojo extends AbstractThriftMojo {
    * @parameter default-value="${project.build.directory}/generated-sources/thrift"
    * @required
    */
+   @Parameter(defaultValue="${project.build.directory}/generated-sources/thrift")
   private File outputDirectory;
 
     @Override

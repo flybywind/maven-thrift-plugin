@@ -19,6 +19,7 @@ import org.codehaus.plexus.util.io.RawInputStreamFacade;
 import java.io.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.jar.JarEntry;
@@ -241,7 +242,7 @@ abstract class AbstractThriftMojo extends AbstractMojo {
 
     protected abstract File getThriftSourceRoot();
 
-    protected abstract List<Artifact> getDependencyArtifacts();
+    protected abstract Collection<Artifact> getDependencyArtifacts();
 
     protected abstract File getOutputDirectory();
 

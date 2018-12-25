@@ -7,6 +7,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -43,10 +45,10 @@ public final class ThriftCompileMojo extends AbstractThriftMojo {
   private File outputDirectory;
 
     @Override
-  protected List<Artifact> getDependencyArtifacts() {
+  protected Collection<Artifact> getDependencyArtifacts() {
     // TODO(gak): maven-project needs generics
     @SuppressWarnings("unchecked")
-    List<Artifact> compileArtifacts = project.getCompileArtifacts();
+    Collection<Artifact> compileArtifacts = project.getDependencyArtifacts();
     return compileArtifacts;
   }
 

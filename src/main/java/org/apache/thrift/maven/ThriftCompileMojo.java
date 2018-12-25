@@ -25,7 +25,7 @@ import java.util.Set;
 
 @Mojo(name = "compile-thrift",
         defaultPhase = LifecyclePhase.GENERATE_SOURCES,
-         = ResolutionScope.COMPILE_PLUS_RUNTIME,
+        requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME,
         requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public final class ThriftCompileMojo extends AbstractThriftMojo {
 

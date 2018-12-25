@@ -27,16 +27,12 @@ import java.util.jar.JarFile;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.base.Preconditions.checkState;
+import static com.google.common.base.Preconditions.*;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Arrays.asList;
 import static java.util.Collections.list;
-import static org.codehaus.plexus.util.FileUtils.cleanDirectory;
-import static org.codehaus.plexus.util.FileUtils.copyStreamToFile;
-import static org.codehaus.plexus.util.FileUtils.getFiles;
+import static org.codehaus.plexus.util.FileUtils.*;
 
 /**
  * Abstract Mojo implementation.
@@ -283,8 +279,9 @@ abstract class AbstractThriftMojo extends AbstractMojo {
             // for some reason under IAM, we receive poms as dependent files
             // I am excluding .xml rather than including .jar as there may be other extensions in use (sar, har, zip)
             if (classpathElementFile.isFile() && classpathElementFile.canRead() &&
-                    !classpathElementFile.getName().endsWith(".xml")) {
+                    classpathElementFile.getName().endsWith(".jar")) {
 
+                getLog().debug("thrift-plugin: find jar " + classpathElementFile.getPath());
                 // create the jar file. the constructor validates.
                 JarFile classpathJar;
                 try {
@@ -297,12 +294,12 @@ abstract class AbstractThriftMojo extends AbstractMojo {
                     final String jarEntryName = jarEntry.getName();
                     final String path[] = jarEntryName.split("/");
                     final String thriftFileName = path[path.length-1];
-                    getLog().info("add include thrift file: " + jarEntryName + " from jar entry: " + jarEntryName);
                     if (jarEntry.getName().endsWith(THRIFT_FILE_SUFFIX)) {
                         if (!(thriftInclude.contains(jarEntryName) || thriftInclude.contains(thriftFileName))) {
                             getLog().debug("drop irrelevent thrift: " + jarEntryName);
                             continue;
                         }
+                        getLog().info("add include thrift file: " + jarEntryName + " from jar entry: " + jarEntryName);
                         final File uncompressedCopy =
                                 new File(new File(temporaryThriftFileDirectory,
                                         truncatePath(classpathJar.getName())), jarEntryName);

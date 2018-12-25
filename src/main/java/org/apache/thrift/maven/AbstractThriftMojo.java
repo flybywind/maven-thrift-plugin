@@ -297,12 +297,12 @@ abstract class AbstractThriftMojo extends AbstractMojo {
                     final String jarEntryName = jarEntry.getName();
                     final String path[] = jarEntryName.split("/");
                     final String thriftFileName = path[path.length-1];
-                    if (!(thriftInclude.contains(jarEntryName) || thriftInclude.contains(thriftFileName))) {
-                        getLog().debug("drop irrelevent thrift: " + jarEntryName);
-                        continue;
-                    }
                     getLog().info("add include thrift file: " + jarEntryName + " from jar entry: " + jarEntryName);
                     if (jarEntry.getName().endsWith(THRIFT_FILE_SUFFIX)) {
+                        if (!(thriftInclude.contains(jarEntryName) || thriftInclude.contains(thriftFileName))) {
+                            getLog().debug("drop irrelevent thrift: " + jarEntryName);
+                            continue;
+                        }
                         final File uncompressedCopy =
                                 new File(new File(temporaryThriftFileDirectory,
                                         truncatePath(classpathJar.getName())), jarEntryName);

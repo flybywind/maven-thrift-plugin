@@ -48,7 +48,7 @@ public final class ThriftCompileMojo extends AbstractThriftMojo {
   protected Collection<Artifact> getDependencyArtifacts() {
     // TODO(gak): maven-project needs generics
     @SuppressWarnings("unchecked")
-    Collection<Artifact> compileArtifacts = project.getDependencyArtifacts();
+    Collection<Artifact> compileArtifacts = project.getArtifacts();
     return compileArtifacts;
   }
 

@@ -256,8 +256,13 @@ abstract class AbstractThriftMojo extends AbstractMojo {
     private ImmutableSet<File> getDependencyArtifactFiles() {
         Set<File> dependencyArtifactFiles = newHashSet();
         for (Artifact artifact : getDependencyArtifacts()) {
-            dependencyArtifactFiles.add(artifact.getFile());
-            getLog().debug("thrift plugin: parse dependence: " + artifact);
+            File artFile = artifact.getFile();
+            if (artFile == null) {
+                getLog().warn(artifact +" no file");
+            } else {
+                dependencyArtifactFiles.add(artifact.getFile());
+                getLog().debug("thrift plugin: parse dependence: " + artifact);
+            }
         }
         return ImmutableSet.copyOf(dependencyArtifactFiles);
     }
@@ -290,7 +295,7 @@ abstract class AbstractThriftMojo extends AbstractMojo {
                 }
                 for (JarEntry jarEntry : list(classpathJar.entries())) {
                     final String jarEntryName = jarEntry.getName();
-                    final String path[] = jarEntryName.split("\\\\");
+                    final String path[] = jarEntryName.split("/");
                     final String thriftFileName = path[path.length-1];
                     if (!(thriftInclude.contains(jarEntryName) || thriftInclude.contains(thriftFileName))) {
                         getLog().debug("drop irrelevent thrift: " + jarEntryName);
@@ -310,7 +315,18 @@ abstract class AbstractThriftMojo extends AbstractMojo {
             } else if (classpathElementFile.isDirectory()) {
                 File[] thriftFiles = classpathElementFile.listFiles(new FilenameFilter() {
                     public boolean accept(File dir, String name) {
-                        return name.endsWith(THRIFT_FILE_SUFFIX);
+                        final String path[] = name.split("/");
+                        final String thriftFileName = path[path.length-1];
+                        if (name.endsWith(THRIFT_FILE_SUFFIX)) {
+                            if (thriftInclude.contains(name) || thriftInclude.contains(thriftFileName)) {
+                                return true;
+                            } else {
+                                getLog().debug("drop irrelevent thrift: " + name);
+                                return false;
+                            }
+                        } else {
+                            return false;
+                        }
                     }
                 });
 
@@ -387,13 +403,4 @@ abstract class AbstractThriftMojo extends AbstractMojo {
         return hexString.toString();
     }
 
-    public static void main(String ... args) {
-        Pattern pattern = Pattern.compile("^include\\s+\\\"(\\w+\\.thrift)\\\"");
-        String line = "include \"miliao_shared.thrift\" abc";
-        System.out.println(line);
-        Matcher m = pattern.matcher(line);
-        System.out.println(m.find());
-        System.out.println(m.groupCount());
-        System.out.println(m.group(1));
-    }
 }

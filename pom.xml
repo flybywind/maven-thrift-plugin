@@ -5,8 +5,17 @@
     <artifactId>maven-thrift-plugin</artifactId>
     <packaging>maven-plugin</packaging>
     <name>Maven Thrift Plugin</name>
-    <version>0.1.10-wtx</version>
+    <version>0.1.10-win</version>
 
+    <distributionManagement>
+        <!--必须设置你需要的repository-->
+        <repository>
+            <id>archiva.internal</id>
+            <name>Internal Release Repository</name>
+            <url>your-repository-url</url>
+        </repository>
+
+    </distributionManagement>
     <build>
         <plugins>
             <plugin>
